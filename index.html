@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Validador de Certificados</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background-color: #f4f4f4;
+      max-width: 500px;
+      margin: auto;
+    }
+    h2 {
+      color: #333;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin-top: 10px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #resultado {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>Validador de Certificados</h2>
+  <form onsubmit="consultarCertificado(); return false;">
+    <input type="text" id="dni" placeholder="Ingrese su DNI" required>
+    <button type="submit">Consultar</button>
+  </form>
+  <div id="resultado"></div>
+
+  <script>
+    function consultarCertificado() {
+      const dni = document.getElementById("dni").value.trim();
+      const url = "https://script.google.com/macros/s/AKfycbwIKSAsoeDPhLRrUs4jwTe_EM0QYkv6w4gv8llVovXn-W1aaDdidT0880DPqveXETIzLA/exec?dni=" + dni;
+
+      fetch(url)
+        .then(res => res.text())
+        .then(text => {
+          const [estado, fecha] = text.split("|");
+          let color = estado === "VALIDO" ? "green" :
+                      estado === "VENCIDO" ? "red" :
+                      "goldenrod";
+          let mensaje = estado === "VALIDO" || estado === "VENCIDO"
+            ? `${estado} - Vence: ${fecha}`
+            : "INEXISTENTE";
+          document.getElementById("resultado").innerHTML =
+            `<span style="color:${color}">${mensaje}</span>`;
+        })
+        .catch(() => {
+          document.getElementById("resultado").innerHTML =
+            `<span style="color:red">Error al consultar</span>`;
+        });
+    }
+  </script>
+</body>
+</html>
