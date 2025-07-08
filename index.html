@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Validador de Certificados</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px 20px;
+      background-color: #f4f4f4;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .contenedor {
+      width: 100%;
+      max-width: 500px;
+    }
+
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin-top: 10px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #resultado {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .spinner {
+      margin: 20px auto;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #ccc;
+      border-top: 4px solid #007bff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="contenedor">
+    <form onsubmit="consultarCertificado(); return false;">
+      <input type="text" id="dni" placeholder="Ingrese su DNI" required>
+      <button type="submit">Consultar</button>
+    </form>
+    <div id="resultado"></div>
+  </div>
+
+  <script>
+    function consultarCertificado() {
+      const dni = document.getElementById("dni").value.trim();
+      const resultado = document.getElementById("resultado");
+      const url = "https://script.google.com/macros/s/AKfycbwIKSAsoeDPhLRrUs4jwTe_EM0QYkv6w4gv8llVovXn-W1aaDdidT0880DPqveXETIzLA/exec?dni=" + dni;
+
+      resultado.innerHTML = `<div class="spinner"></div>`;
+
+      fetch(url)
+        .then(res => res.text())
+        .then(text => {
+          const [estado, fecha] = text.split("|");
+          let mensaje = "";
+          let color = "";
+          let icono = "";
+
+          if (estado === "VALIDO") {
+            color = "#d4edda";
+            icono = "✅";
+            mensaje = `Certificado válido hasta el ${fecha}`;
+          } else if (estado === "VENCIDO") {
+            color = "#f8d7da";
+            icono = "❌";
+            mensaje = `Certificado vencido el ${fecha}`;
+          } else {
+            color = "#fff3cd";
+            icono = "⚠️";
+            mensaje = "Certificado inexistente";
+          }
+
+          resultado.innerHTML = `
+            <div style="
+              background-color: ${color};
+              padding: 15px;
+              border-radius: 8px;
+              font-size: 18px;
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            ">
+              <span style="font-size: 24px;">${icono}</span>
+              <span>${mensaje}</span>
+            </div>
+          `;
+        })
+        .catch(() => {
+          resultado.innerHTML = `
+            <div style="
+              background-color: #f8d7da;
+              padding: 15px;
+              border-radius: 8px;
+              font-size: 18px;
+              color: #721c24;
+              box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            ">
+              ❌ Error al consultar el certificado
+            </div>
+          `;
+        });
+    }
+  </script>
+</body>
+</html>
